@@ -8,7 +8,7 @@ my-interface : crash "`my-interface` used outside `with-my-interface`"
 
 with-my-interface : syntax {
     with-my-interface 'body -> {
-        url : "https://github.com/wipplelang/playground-examples/raw/ui-test.js"
+        url : "https://github.com/wipplelang/playground-examples/raw/main/ui-test.js"
 
         with-ui url (ui -> {
             with (my-interface : My-Interface { ui }) 'body
