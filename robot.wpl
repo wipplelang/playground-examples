@@ -1,0 +1,19 @@
+Robot : type {
+    name :: Text
+}
+
+[context]
+robot :: Robot
+robot : crash "`robot` not initialized"
+
+with-robot : syntax {
+    with-robot 'name 'body -> with (robot : Robot { name : 'name }) 'body
+}
+
+say-hello : syntax {
+    say-hello -> show (format "Hello, I'm _!" (name of robot))
+}
+
+with-robot "Bot" {
+    say-hello
+}

@@ -1,0 +1,24 @@
+My-Interface : type {
+    ui :: UI
+}
+
+[context]
+my-interface :: My-Interface
+my-interface : crash "`my-interface` used outside `with-my-interface`"
+
+with-my-interface : syntax {
+    with-my-interface 'body -> {
+        url : "https://github.com/wipplelang/playground-examples/raw/ui-test.js"
+
+        with-ui url (ui -> {
+            with (my-interface : My-Interface { ui }) 'body
+        })
+    }
+}
+
+display-text :: Text -> ()
+display-text : text -> ui of my-interface . message "display-text" text
+
+with-my-interface {
+    display-text "Hello, world!"
+}
