@@ -1,0 +1,18 @@
+---
+id: V87NcuRd
+type: code
+---
+
+long? :: Text -> Boolean
+long? : word -> count word > 5
+
+short? :: Text -> Boolean
+short? : not long?
+
+words : list "apple" "banana" "orange" "pear" "blueberry"
+
+show "### Long words"
+words . filter long? . each show
+
+show "### Short words"
+words . filter short? . each show
