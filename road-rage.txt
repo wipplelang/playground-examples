@@ -1,3 +1,8 @@
+---
+id: goe30CWl
+type: code
+---
+
 use "game"
 
 palette :: List Text
@@ -162,12 +167,12 @@ game-room : () -> {
   time : mutable 0
   wait-counter : mutable 0
   wait : mutable max-wait
-  x : mutable 3
+  car-x : mutable 3
   yellow-line-offset : mutable 0
   car-spawn-probability : mutable max-car-spawn-probability
   cars : mutable Default
   hit-car : mutable False
-  game-over-counter : mutable 0
+  game-over-counter : mutable (0 :: Natural)
   score : mutable 0
 
   () -> {
@@ -199,7 +204,7 @@ game-room : () -> {
       render-line "OVER!"
     }
 
-    locate (car-left-x + get x , character-y)
+    locate (car-left-x + get car-x , character-y)
     fg (from-palette 13)
 
     render-glyph (if (get hit-car) explosion car)
@@ -212,7 +217,7 @@ game-room : () -> {
       end ()
     }
 
-    if (get cars . reduce False ((x , y) hit -> hit or (x = get x and y = character-y))) {
+    if (get cars . reduce False ((x , y) hit -> hit or (x = get car-x and y = character-y))) {
       hit-car . set! True
 
       if (get score > get high-score) {
@@ -235,9 +240,9 @@ game-room : () -> {
     increment! wait-counter
 
     new-x : when (button ()) {
-      Some Left -> (max (get x as Integer - 1) 0) as! Natural
-      Some Right -> min (get x + 1) (number-of-cars - 1)
-      _ -> get x
+      Some Left -> (max (get car-x as Integer - 1) 0) as! Natural
+      Some Right -> min (get car-x + 1) (number-of-cars - 1)
+      _ -> get car-x
     }
 
     updated-cars : mutable (get cars . try-filter ((x , y) -> {
@@ -250,7 +255,7 @@ game-room : () -> {
 
     reached-wait : (get wait-counter mod speed-interval) = 0
 
-    x . set! new-x
+    car-x . set! new-x
 
     yellow-line-offset . set! ((get yellow-line-offset + 1) mod yellow-line-length as Integer)
 
