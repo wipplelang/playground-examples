@@ -218,7 +218,7 @@ game-room : () -> {
       end ()
     }
 
-    if (get cars . reduce False ((x , y) hit -> hit or (x = get car-x and y = character-y))) {
+    if (get cars . any? ((x , y) -> x = get car-x and y = character-y)) {
       hit-car . set! True
 
       if (get score > get high-score) {
