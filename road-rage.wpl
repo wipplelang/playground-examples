@@ -1,13 +1,5 @@
 use "game"
 
--- TODO: Move into standard library
-max :: A where (Order A) => A -> A -> A
-max : a b -> if (a >= b) a b
-
--- TODO: Move into standard library
-min :: A where (Order A) => A -> A -> A
-min : a b -> if (a <= b) a b
-
 palette :: List Text
 palette : list `rgb(255, 255, 255)` `rgb(0, 0, 0)` `rgb(189, 189, 189)` `rgb(253, 231, 2)` `rgb(81, 247, 22)` `rgb(35, 123, 0)` `rgb(251, 206, 165)` `rgb(249, 165, 3)` `rgb(148, 90, 41)` `rgb(58, 189, 255)` `rgb(123, 58, 255)` `rgb(6, 57, 247)` `rgb(246, 90, 185)` `rgb(245, 24, 5)` `rgb(57, 57, 57)` `rgb(239, 239, 239)`
 
@@ -69,7 +61,7 @@ background-room : score yellow-line-color yellow-line-offset -> {
   })
 
   fg (from-palette 15)
-  height . times (y -> {
+  (0 to height by 1) . each (y -> {
     locate (21 , y)
     render-glyph line
     locate (29 , y)
@@ -77,14 +69,13 @@ background-room : score yellow-line-color yellow-line-offset -> {
   })
 
   fg yellow-line-color
-  (height + yellow-line-length) . times (y -> {
+  (0 to (height + yellow-line-length) by 1) . each (y -> {
     if (((y as Integer - yellow-line-offset) mod (yellow-line-length as Integer)) > 0) {
       locate (25 , y - yellow-line-length)
       render-glyph line
     }
   })
 }
-
 
 title-room :: () -> () -> ()
 title-room : () -> {
@@ -168,36 +159,21 @@ game-room : () -> {
   character-y :: Natural
   character-y : height - 4
 
-  Game-State : type {
-    time :: Mutable Natural
-    wait-counter :: Mutable Natural
-    wait :: Mutable Natural
-    x :: Mutable Natural
-    yellow-line-offset :: Mutable Integer
-    car-spawn-probability :: Mutable Number
-    cars :: Mutable (List (Natural , Natural))
-    hit-car :: Mutable Boolean
-    game-over-counter :: Mutable Natural
-    score :: Mutable Natural
-  }
-
-  state : Game-State {
-    time : mutable 0
-    wait-counter : mutable 0
-    wait : mutable max-wait
-    x : mutable 3
-    yellow-line-offset : mutable 0
-    car-spawn-probability : mutable max-car-spawn-probability
-    cars : mutable Default
-    hit-car : mutable False
-    game-over-counter : mutable 0
-    score : mutable 0
-  }
+  time : mutable 0
+  wait-counter : mutable 0
+  wait : mutable max-wait
+  x : mutable 3
+  yellow-line-offset : mutable 0
+  car-spawn-probability : mutable max-car-spawn-probability
+  cars : mutable Default
+  hit-car : mutable False
+  game-over-counter : mutable 0
+  score : mutable 0
 
   () -> {
-    background-room (Some (get (score of state))) (if (get (hit-car of state)) (from-palette 8) (from-palette 7)) (get (yellow-line-offset of state))
+    background-room (Some (get score)) (if (get hit-car) (from-palette 8) (from-palette 7)) (get yellow-line-offset)
 
-    if (get (hit-car of state)) {
+    if (get hit-car) {
       play (Music {
         song : ptc-audio 6
         loop : False
@@ -209,13 +185,13 @@ game-room : () -> {
       })
     }
 
-    get (cars of state) . each ((x , y) -> {
+    get cars . each ((x , y) -> {
       locate (car-left-x + x , y)
-      fg (if (y > character-y or get (hit-car of state)) (from-palette 14) (from-palette 15))
+      fg (if (y > character-y or get hit-car) (from-palette 14) (from-palette 15))
       render-glyph oncoming-car
     })
 
-    if (get (hit-car of state)) {
+    if (get hit-car) {
       fg (from-palette 15)
       locate (car-left-x + 1 , text-y)
       render-line "GAME"
@@ -223,12 +199,12 @@ game-room : () -> {
       render-line "OVER!"
     }
 
-    locate (car-left-x + get (x of state) , character-y)
+    locate (car-left-x + get x , character-y)
     fg (from-palette 13)
 
-    render-glyph (if (get (hit-car of state)) explosion car)
+    render-glyph (if (get hit-car) explosion car)
 
-    if (get (game-over-counter of state) >= 120) {
+    if (get game-over-counter >= 120) {
       if (button () is Some _) {
         room . set! (title-room ())
       }
@@ -236,56 +212,56 @@ game-room : () -> {
       end ()
     }
 
-    if (get (cars of state) . reduce False ((x , y) hit -> hit or (x = get (x of state) and y = character-y))) {
-      hit-car of state . set! True
+    if (get cars . reduce False ((x , y) hit -> hit or (x = get x and y = character-y))) {
+      hit-car . set! True
 
-      if (get (score of state) > get high-score) {
-        high-score . set! (get (score of state))
+      if (get score > get high-score) {
+        high-score . set! (get score)
       }
     }
 
-    if (get (hit-car of state)) {
-      increment! (game-over-counter of state)
+    if (get hit-car) {
+      increment! game-over-counter
 
       end ()
     }
 
-    increment! (time of state)
+    increment! time
 
-    if (get (time of state) mod (get (wait of state)) /= 0) {
+    if (get time mod (get wait) /= 0) {
       end ()
     }
 
-    increment! (wait-counter of state)
+    increment! wait-counter
 
     new-x : when (button ()) {
-      Some Left -> (max (get (x of state) as Integer - 1) 0) as! Natural
-      Some Right -> min (get (x of state) + 1) (number-of-cars - 1)
-      _ -> get (x of state)
+      Some Left -> (max (get x as Integer - 1) 0) as! Natural
+      Some Right -> min (get x + 1) (number-of-cars - 1)
+      _ -> get x
     }
 
-    updated-cars : mutable (get (cars of state) . try-filter ((x , y) -> {
+    updated-cars : mutable (get cars . try-filter ((x , y) -> {
       if (y < height) (Some (x , (y + 1))) None
     }) . collect :: List _)
 
-    if (random (0.000 to 1.000) < get (car-spawn-probability of state)) {
+    if (random (0.000 to 1.000) < get car-spawn-probability) {
       updated-cars . append! (random (0 to number-of-cars) , 0)
     }
 
-    reached-wait : (get (wait-counter of state) mod speed-interval) = 0
+    reached-wait : (get wait-counter mod speed-interval) = 0
 
-    x of state . set! new-x
+    x . set! new-x
 
-    yellow-line-offset of state . set! ((get (yellow-line-offset of state) + 1) mod yellow-line-length as Integer)
+    yellow-line-offset . set! ((get yellow-line-offset + 1) mod yellow-line-length as Integer)
 
     if reached-wait {
-      wait of state . set! (max (get (wait of state) - wait-change) min-wait)
-      car-spawn-probability of state . set! (max (get (car-spawn-probability of state) - car-spawn-probability-change) min-car-spawn-probability)
+      wait . set! (max (get wait - wait-change) min-wait)
+      car-spawn-probability . set! (max (get car-spawn-probability - car-spawn-probability-change) min-car-spawn-probability)
     }
 
-    cars of state . set! (get updated-cars)
+    cars . set! (get updated-cars)
 
-    score of state . add! (get updated-cars . filter ((_, y) -> y = character-y + 1) . count)
+    score . add! (get updated-cars . filter ((_ , y) -> y = character-y + 1) . count)
   }
 }
 
