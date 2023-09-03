@@ -1,6 +1,7 @@
 ---
 id: goe30CWl
 type: code
+collapse: true
 ---
 
 use "game"
