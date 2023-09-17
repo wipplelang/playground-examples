@@ -13,7 +13,7 @@ from-palette :: Natural -> Text
 from-palette : n -> palette . nth n . expect "invalid palette color"
 
 ptc-audio :: Natural -> Text
-ptc-audio : n -> format "https://github.com/WilsonGramer/games/raw/main/src/engine/backends/ptc/assets/audio/_.m4a" n
+ptc-audio : n -> "https://github.com/WilsonGramer/games/raw/main/src/engine/backends/ptc/assets/audio/_.m4a" n
 
 block :: Natural
 block : 143
@@ -62,8 +62,8 @@ background-room : score yellow-line-color yellow-line-offset -> {
   render-line "  Wilson Gramer"
 
   render-line (when score {
-    Some score -> format "  Score: _" score
-    None -> format "  High score: _" (get high-score)
+    Some score -> "  Score: _" score
+    None -> "  High score: _" (get high-score)
   })
 
   fg (from-palette 15)
