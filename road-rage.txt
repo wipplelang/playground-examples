@@ -1,10 +1,9 @@
 ---
 id: goe30CWl
 type: code
+setup: game
 collapse: true
 ---
-
-use "game"
 
 palette :: List Text
 palette : list `rgb(255, 255, 255)` `rgb(0, 0, 0)` `rgb(189, 189, 189)` `rgb(253, 231, 2)` `rgb(81, 247, 22)` `rgb(35, 123, 0)` `rgb(251, 206, 165)` `rgb(249, 165, 3)` `rgb(148, 90, 41)` `rgb(58, 189, 255)` `rgb(123, 58, 255)` `rgb(6, 57, 247)` `rgb(246, 90, 185)` `rgb(245, 24, 5)` `rgb(57, 57, 57)` `rgb(239, 239, 239)`
@@ -274,4 +273,4 @@ game-room : () -> {
 room :: Mutable (() -> ())
 room : mutable (title-room ())
 
-with-game { get room () }
+get room ()
