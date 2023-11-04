@@ -1,0 +1,57 @@
+---
+id: kFyx7VN1
+type: code
+setup: graphing
+---
+
+resolution :: Natural
+resolution : 12
+
+factorial :: Natural -> Number
+factorial : n -> when n {
+  0 or 1 -> 1
+  n -> n as Number * factorial (n - 1)
+}
+
+sin :: Number -> Number
+sin : x -> {
+  result : mutable x
+  power : mutable 3
+  sign : mutable -1
+
+  repeat (resolution times) {
+    numerator : x ^ get power as Number
+    denominator : factorial (get power)
+
+    term : numerator / denominator * get sign
+    result . add! term
+    power . add! 2
+    sign . set! (get sign * -1)
+  }
+  
+  get result
+}
+
+cos :: Number -> Number
+cos : x -> sin (x + 3.141592 / 2)
+
+tan :: Number -> Number
+tan : x -> sin x / cos x
+
+color "red"
+plot sin
+
+color "blue"
+plot cos
+
+color "green"
+plot tan
+
+plot-circle :: Number -> ()
+plot-circle : r -> {
+  plot (x -> sqrt (r ^ 2 - x ^ 2))
+  plot (x -> -1 * sqrt (r ^ 2 - x ^ 2))
+}
+
+color "black"
+plot-circle 10
