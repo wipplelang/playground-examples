@@ -1,0 +1,33 @@
+---
+id: _fSPkFes
+type: code
+---
+
+pig-latin-word :: Word where (As-Sequence Word Text) => Word -> Text
+pig-latin-word : word -> {
+  letters : As-Sequence word
+
+  first-letter : when (next letters) {
+    Some letter -> letter
+    None -> end ""
+  }
+
+  rest : letters . collect :: Text
+
+  "__ay" rest first-letter
+}
+
+pig-latin :: Text -> Text
+pig-latin : sentence -> sentence \
+  . split " " \
+  . transform pig-latin-word \
+  . transform (+ " ") \
+  . collect
+
+test-pig-latin :: Text -> ()
+test-pig-latin : input -> show ("_ -> _" input (pig-latin input))
+
+test-pig-latin ""
+test-pig-latin "x"
+test-pig-latin "xyz"
+test-pig-latin "hello world"
