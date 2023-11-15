@@ -12,17 +12,16 @@ pig-latin-word : word -> {
     None -> end ""
   }
 
-  rest : letters . collect :: Text
+  rest : collect letters :: Text
 
   "__ay" rest first-letter
 }
 
 pig-latin :: Text -> Text
-pig-latin : sentence -> sentence \
-  . split " " \
-  . transform pig-latin-word \
-  . transform (+ " ") \
-  . collect
+pig-latin : split " " \
+  | transform pig-latin-word \
+  | transform (+ " ") \
+  | collect
 
 test-pig-latin :: Text -> ()
 test-pig-latin : input -> show ("_ -> _" input (pig-latin input))
