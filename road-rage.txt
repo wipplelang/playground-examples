@@ -6,7 +6,7 @@ collapse: true
 ---
 
 palette :: List Text
-palette : list `rgb(255, 255, 255)` `rgb(0, 0, 0)` `rgb(189, 189, 189)` `rgb(253, 231, 2)` `rgb(81, 247, 22)` `rgb(35, 123, 0)` `rgb(251, 206, 165)` `rgb(249, 165, 3)` `rgb(148, 90, 41)` `rgb(58, 189, 255)` `rgb(123, 58, 255)` `rgb(6, 57, 247)` `rgb(246, 90, 185)` `rgb(245, 24, 5)` `rgb(57, 57, 57)` `rgb(239, 239, 239)`
+palette : `rgb(255, 255, 255)`, `rgb(0, 0, 0)`, `rgb(189, 189, 189)`, `rgb(253, 231, 2)`, `rgb(81, 247, 22)`, `rgb(35, 123, 0)`, `rgb(251, 206, 165)`, `rgb(249, 165, 3)`, `rgb(148, 90, 41)`, `rgb(58, 189, 255)`, `rgb(123, 58, 255)`, `rgb(6, 57, 247)`, `rgb(246, 90, 185)`, `rgb(245, 24, 5)`, `rgb(57, 57, 57)`, `rgb(239, 239, 239)`
 
 from-palette :: Natural -> Text
 from-palette : n -> palette . nth n . expect "invalid palette color"
@@ -67,16 +67,16 @@ background-room : score yellow-line-color yellow-line-offset -> {
 
   fg (from-palette 15)
   (0 to height by 1) . each (y -> {
-    locate (21 , y)
+    locate (21 ; y)
     render-glyph line
-    locate (29 , y)
+    locate (29 ; y)
     render-glyph line
   })
 
   fg yellow-line-color
   (0 to (height + yellow-line-length) by 1) . each (y -> {
     if (((y as Integer - yellow-line-offset) mod (yellow-line-length as Integer)) > 0) {
-      locate (25 , y - yellow-line-length)
+      locate (25 ; y - yellow-line-length)
       render-glyph line
     }
   })
@@ -93,9 +93,9 @@ title-room : () -> {
     })
 
     fg (from-palette 14)
-    locate (2 , 20)
+    locate (2 ; 20)
     render-line "Press any button"
-    locate (2 , 21)
+    locate (2 ; 21)
     render-line "to start"
 
     if (button () is Some _) { room . set! (countdown-room ()) }
@@ -110,16 +110,16 @@ countdown-room : () -> {
   () -> {
     background-room None (from-palette 8) -1
 
-    locate (22 , 9)
+    locate (22 ; 9)
     render-line "Ready!!"
 
     if (get countdown <= 1) {
-      locate (23 , 11)
+      locate (23 ; 11)
       render-line "Set!!"
     }
 
     if (get countdown = 0) {
-      locate (23 , 13)
+      locate (23 ; 13)
       render-line "GO!!!"
     }
 
@@ -190,21 +190,21 @@ game-room : () -> {
       })
     }
 
-    get cars . each ((x , y) -> {
-      locate (car-left-x + x , y)
+    get cars . each ((x ; y) -> {
+      locate (car-left-x + x ; y)
       fg (if (y > character-y or get hit-car) (from-palette 14) (from-palette 15))
       render-glyph oncoming-car
     })
 
     if (get hit-car) {
       fg (from-palette 15)
-      locate (car-left-x + 1 , text-y)
+      locate (car-left-x + 1 ; text-y)
       render-line "GAME"
-      locate (car-left-x + 1 , text-y + 2)
+      locate (car-left-x + 1 ; text-y + 2)
       render-line "OVER!"
     }
 
-    locate (car-left-x + get car-x , character-y)
+    locate (car-left-x + get car-x ; character-y)
     fg (from-palette 13)
 
     render-glyph (if (get hit-car) explosion car)
@@ -217,7 +217,7 @@ game-room : () -> {
       end ()
     }
 
-    if (get cars . any? ((x , y) -> x = get car-x and y = character-y)) {
+    if (get cars . any? ((x ; y) -> x = get car-x and y = character-y)) {
       hit-car . set! True
 
       if (get score > get high-score) {
@@ -245,12 +245,12 @@ game-room : () -> {
       _ -> get car-x
     }
 
-    updated-cars : mutable (get cars . try-filter ((x , y) -> {
-      if (y < height) (Some (x , (y + 1))) None
+    updated-cars : mutable (get cars . try-filter ((x ; y) -> {
+      if (y < height) (Some (x ; (y + 1))) None
     }) . collect :: List _)
 
     if (random (0.000 to 1.000) < get car-spawn-probability) {
-      updated-cars . append! (random (0 to number-of-cars) , 0)
+      updated-cars . append! (random (0 to number-of-cars) ; 0)
     }
 
     reached-wait : (get wait-counter mod speed-interval) = 0
@@ -266,7 +266,7 @@ game-room : () -> {
 
     cars . set! (get updated-cars)
 
-    score . add! (get updated-cars . filter ((_ , y) -> y = character-y + 1) . count)
+    score . add! (get updated-cars . filter ((_ ; y) -> y = character-y + 1) . count)
   }
 }
 
