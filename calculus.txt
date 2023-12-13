@@ -116,7 +116,7 @@ demo : expr -> {
 }
 
 separator :: () -> ()
-separator : () -> show "\n---\n"
+separator : () -> show "\n***\n"
 
 demo (x -> x)
 separator ()
