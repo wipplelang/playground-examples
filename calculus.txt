@@ -108,11 +108,11 @@ demo : expr -> {
   term : expr (Term Variable)
   term' : term . differentiate . simplify
 
-  show ("f(x) = _" term)
-  show ("f(_) = _" test-value ((term as _) test-value))
+  show ("$f(x) = _$" term)
+  show ("$f(_) = _$" test-value ((term as _) test-value))
   show ""
-  show ("f'(x) = _" term')
-  show ("f'(_) = _" test-value ((term' as _) test-value))
+  show ("$f'(x) = _$" term')
+  show ("$f'(_) = _$" test-value ((term' as _) test-value))
 }
 
 separator :: () -> ()
