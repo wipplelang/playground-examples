@@ -1,0 +1,127 @@
+---
+id: Ys1Dsbjr
+type: code
+---
+
+Term : type {
+  Constant Natural
+  Variable
+  Add Term Term
+  Multiply Term Term
+  Power Term Natural
+}
+
+instance (Show Term) : term -> when term {
+  Term Constant n -> Show n
+  Term Variable -> "x"
+  Term Add a b -> "(_ + _)" a b
+  Term Multiply a b -> "(_ * _)" a b
+  Term Power a b -> "(_ ^ _)" a b
+}
+
+instance (Equal Term) : a b -> when (a ; b) {
+  (Term Constant a ; Term Constant b) -> a = b
+  (Term Variable ; Term Variable) -> True
+  (Term Add a1 a2 ; Term Add b1 b2) -> a1 = b1 and a2 = b2
+  (Term Multiply a1 a2 ; Term Multiply b1 b2) -> a1 = b1 and a2 = b2
+  (Term Power a1 n1 ; Term Power b1 n2) -> a1 = b1 and n1 = n2
+  _ -> False
+}
+
+instance (Add Term Term Term) : b a -> Term Add a b
+instance (Add Natural Term Term) : b a -> Term Add (Term Constant a) b
+instance (Add Term Natural Term) : b a -> Term Add a (Term Constant b)
+
+instance (Multiply Term Term Term) : b a -> Term Multiply a b
+instance (Multiply Natural Term Term) : b a -> Term Multiply (Term Constant a) b
+instance (Multiply Term Natural Term) : b a -> Term Multiply a (Term Constant b)
+
+instance (Power Term Natural Term) : n a -> Term Power a n
+
+instance (As Term (Natural -> Natural)) : term x -> when term {
+  Term Constant n -> n
+  Term Variable -> x
+  Term Add a b -> (As a) x + (As b) x
+  Term Multiply a b -> (As a) x * (As b) x
+  Term Power a n -> (As a) x ^ n
+}
+
+differentiate :: Term -> Term
+differentiate : term -> when term {
+  Term Constant _ -> Term Constant 0
+  Term Variable -> Term Constant 1
+  Term Add a b -> differentiate a + differentiate b
+  Term Multiply a b -> a * differentiate b + differentiate a * b
+  Term Power a n -> a ^ (n - 1) * differentiate a
+}
+
+simplify :: Term -> Term
+simplify : term -> {
+  simplify-once :: Term -> Term
+  simplify-once : term -> when term {
+    Term Constant n ->
+      Term Constant n
+    Term Variable ->
+      Term Variable
+    Term Add a (Term Constant 0) ->
+      simplify a
+    Term Add (Term Constant 0) b ->
+      simplify b
+    Term Add a b ->
+      Term Add (simplify a) (simplify b)
+    Term Multiply _ (Term Constant 0) ->
+      Term Constant 0
+    Term Multiply (Term Constant 0) _ ->
+      Term Constant 0
+    Term Multiply a (Term Constant 1) ->
+      simplify a
+    Term Multiply (Term Constant 1) b ->
+      simplify b
+    Term Multiply a b ->
+      Term Multiply (simplify a) (simplify b)
+    Term Power _ 0 ->
+      Term Constant 1
+    Term Power (Term Constant 0) _ ->
+      Term Constant 0
+    Term Power (Term Constant 1) _ ->
+      Term Constant 1
+    Term Power a 1 ->
+      simplify a
+    Term Power a n ->
+      Term Power (simplify a) n
+  }
+
+  simplify-repeatedly :: Term -> Term
+  simplify-repeatedly : term -> {
+    simplfied : simplify-once term
+    if (term = simplfied) simplfied (simplify-repeatedly simplfied)
+  }
+
+  simplify-repeatedly term
+}
+
+test-value :: Natural
+test-value : 3
+
+demo :: (Term -> Term) -> ()
+demo : expr -> {
+  term : expr (Term Variable)
+  term' : term . differentiate . simplify
+
+  show ("f(x) = _" term)
+  show ("f(_) = _" test-value ((term as _) test-value))
+  show ""
+  show ("f'(x) = _" term')
+  show ("f'(_) = _" test-value ((term' as _) test-value))
+}
+
+separator :: () -> ()
+separator : () -> show "\n---\n"
+
+demo (x -> x)
+separator ()
+demo (x -> x + 1)
+separator ()
+demo (x -> 2 * x ^ 2)
+separator ()
+demo (x -> 2 * x * 2)
