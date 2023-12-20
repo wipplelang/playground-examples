@@ -32,7 +32,7 @@ wrecking-ball : box {
   })
 })
 
-at (1 seconds) {
+at (5 seconds) {
   wrecking-ball . force right (10000 (kilograms * (pixels / seconds / seconds)))
 }
 
