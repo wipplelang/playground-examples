@@ -1,0 +1,38 @@
+---
+page: 
+type: code
+setup: physics
+lint: false
+---
+
+wall : box {
+  mass : static
+  height : 600 pixels
+  x : just (800 pixels)
+}
+
+wrecking-ball : box {
+  mass : 10 kilograms
+  width : 100 pixels
+  height : 100 pixels
+  x : initially (0 pixels)
+}
+
+-- Draw a bunch of boxes
+(300 to 800 by 100) . each (x -> {
+  (250 to 350 by 30) . each (y -> {
+    _ : box {
+      width : 25 pixels
+      height : 25 pixels
+      mass : 1 kilograms
+      rotates : True
+      x : initially ((x + random (0 to 10)) . pixels)
+      y : initially ((y + random (0 to 10))  . pixels)
+    }
+  })
+})
+
+at (1 seconds) {
+  wrecking-ball . force right (10000 (kilograms * (pixels / seconds / seconds)))
+}
+
