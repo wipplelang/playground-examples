@@ -8,37 +8,37 @@ collapse: true
 palette :: List Text
 palette : `rgb(255, 255, 255)`, `rgb(0, 0, 0)`, `rgb(189, 189, 189)`, `rgb(253, 231, 2)`, `rgb(81, 247, 22)`, `rgb(35, 123, 0)`, `rgb(251, 206, 165)`, `rgb(249, 165, 3)`, `rgb(148, 90, 41)`, `rgb(58, 189, 255)`, `rgb(123, 58, 255)`, `rgb(6, 57, 247)`, `rgb(246, 90, 185)`, `rgb(245, 24, 5)`, `rgb(57, 57, 57)`, `rgb(239, 239, 239)`
 
-from-palette :: Natural -> Text
+from-palette :: Number -> Text
 from-palette : n -> palette . nth n . expect "invalid palette color"
 
-ptc-audio :: Natural -> Text
+ptc-audio :: Number -> Text
 ptc-audio : n -> "https://github.com/WilsonGramer/games/raw/main/src/engine/backends/ptc/assets/audio/_.m4a" n
 
-block :: Natural
+block :: Number
 block : 143
 
-line :: Natural
+line :: Number
 line : 150
 
-a-button :: Natural
+a-button :: Number
 a-button : 1
 
-oncoming-car :: Natural
+oncoming-car :: Number
 oncoming-car : 238
 
-car :: Natural
+car :: Number
 car : 236
 
-explosion :: Natural
+explosion :: Number
 explosion : 254
 
-yellow-line-length :: Natural
+yellow-line-length :: Number
 yellow-line-length : 3
 
-high-score :: Mutable Natural
+high-score :: Mutable Number
 high-score : mutable 0
 
-background-room :: Maybe Natural -> Text -> Integer -> ()
+background-room :: Maybe Number -> Text -> Number -> ()
 background-room : score yellow-line-color yellow-line-offset -> {
   render-line ""
   render-line ""
@@ -75,7 +75,7 @@ background-room : score yellow-line-color yellow-line-offset -> {
 
   fg yellow-line-color
   (0 to (height + yellow-line-length) by 1) . each (y -> {
-    if (((y as Integer - yellow-line-offset) mod (yellow-line-length as Integer)) > 0) {
+    if (((y as Number - yellow-line-offset) mod (yellow-line-length as Number)) > 0) {
       locate (25 ; y - yellow-line-length)
       render-glyph line
     }
@@ -104,8 +104,8 @@ title-room : () -> {
 
 countdown-room :: () -> () -> ()
 countdown-room : () -> {
-  clock : mutable (0 :: Natural)
-  countdown : mutable (2 :: Natural)
+  clock : mutable (0 :: Number)
+  countdown : mutable (2 :: Number)
 
   () -> {
     background-room None (from-palette 8) -1
@@ -131,10 +131,10 @@ countdown-room : () -> {
 
 game-room :: () -> () -> ()
 game-room : () -> {
-  car-left-x :: Natural
+  car-left-x :: Number
   car-left-x : 22
 
-  number-of-cars :: Natural
+  number-of-cars :: Number
   number-of-cars : 7
 
   max-car-spawn-probability :: Number
@@ -146,22 +146,22 @@ game-room : () -> {
   min-car-spawn-probability :: Number
   min-car-spawn-probability : 0.3
 
-  speed-interval :: Natural
+  speed-interval :: Number
   speed-interval : 35
 
-  min-wait :: Natural
+  min-wait :: Number
   min-wait : 3
 
-  max-wait :: Natural
+  max-wait :: Number
   max-wait : 7
 
-  wait-change :: Natural
+  wait-change :: Number
   wait-change : 1
 
-  text-y :: Natural
+  text-y :: Number
   text-y : 10
 
-  character-y :: Natural
+  character-y :: Number
   character-y : height - 4
 
   time : mutable 0
@@ -172,7 +172,7 @@ game-room : () -> {
   car-spawn-probability : mutable max-car-spawn-probability
   cars : mutable Default
   hit-car : mutable False
-  game-over-counter : mutable (0 :: Natural)
+  game-over-counter : mutable (0 :: Number)
   score : mutable 0
 
   () -> {
@@ -240,7 +240,7 @@ game-room : () -> {
     increment! wait-counter
 
     new-x : when (button ()) {
-      Some Left -> (max (get car-x as Integer - 1) 0) as! Natural
+      Some Left -> (max (get car-x as Number - 1) 0) as! Number
       Some Right -> min (get car-x + 1) (number-of-cars - 1)
       _ -> get car-x
     }
@@ -249,15 +249,15 @@ game-room : () -> {
       if (y < height) (Some (x ; (y + 1))) None
     }) . collect :: List _)
 
-    if (random (0.000 to 1.000) < get car-spawn-probability) {
-      updated-cars . append! (random (0 to number-of-cars) ; 0)
+    if (random-between (0.000 to 1.000) < get car-spawn-probability) {
+      updated-cars . append! (random-between (0 to number-of-cars) ; 0)
     }
 
     reached-wait : (get wait-counter mod speed-interval) = 0
 
     car-x . set! new-x
 
-    yellow-line-offset . set! ((get yellow-line-offset + 1) mod yellow-line-length as Integer)
+    yellow-line-offset . set! ((get yellow-line-offset + 1) mod yellow-line-length as Number)
 
     if reached-wait {
       wait . set! (max (get wait - wait-change) min-wait)
